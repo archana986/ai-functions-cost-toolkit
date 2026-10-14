@@ -1,0 +1,38 @@
+# AI Functions cost toolkit.
+# Set catalog at validate/deploy/run time via --var. See README.md and SETUP.md.
+bundle:
+  name: ai-functions-cost-toolkit
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog catalog you can create a schema in
+    default: main
+  schema:
+    description: Schema that will hold synthetic transcripts and run_log
+    default: ai_functions_cost_demo
+  sample_size:
+    description: Number of synthetic call transcripts per run
+    default: "100"
+  team_tag:
+    description: Value written to custom_tags.team for billing attribution
+    default: ai-cost-demo
+  owner_email:
+    description: Identity used as custom_tags.Owner (defaults to the deploying user)
+    default: ${workspace.current_user.userName}
+  model_name:
+    description: Foundation Model endpoint used by the ai_query path
+    default: databricks-meta-llama-3-3-70b-instruct
+
+targets:
+  dev:
+    mode: development
+    default: true
+  prod:
+    mode: production
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+    run_as:
+      user_name: ${workspace.current_user.userName}

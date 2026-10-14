@@ -1,0 +1,67 @@
+# Full demo job: setup, synthetic data, ai_extract, ai_query, reconcile, ad-hoc view.
+resources:
+  jobs:
+    ai_functions_cost_demo:
+      name: ai-functions-cost-demo
+      max_concurrent_runs: 1
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: schema
+          default: ${var.schema}
+        - name: sample_size
+          default: ${var.sample_size}
+        - name: team_tag
+          default: ${var.team_tag}
+        - name: owner_email
+          default: ${var.owner_email}
+        - name: model_name
+          default: ${var.model_name}
+      tasks:
+        - task_key: setup
+          notebook_task:
+            notebook_path: ../src/notebooks/01_setup.ipynb
+            source: WORKSPACE
+        - task_key: generate_data
+          depends_on:
+            - task_key: setup
+          notebook_task:
+            notebook_path: ../src/notebooks/02_generate_data.ipynb
+            source: WORKSPACE
+        - task_key: run_ai_extract
+          depends_on:
+            - task_key: generate_data
+          notebook_task:
+            notebook_path: ../src/notebooks/03a_run_ai_extract.ipynb
+            source: WORKSPACE
+        - task_key: run_ai_query
+          depends_on:
+            - task_key: generate_data
+          notebook_task:
+            notebook_path: ../src/notebooks/03b_run_ai_query.ipynb
+            source: WORKSPACE
+        - task_key: reconcile_costs
+          depends_on:
+            - task_key: run_ai_extract
+            - task_key: run_ai_query
+          notebook_task:
+            notebook_path: ../src/notebooks/04_reconcile_costs.ipynb
+            source: WORKSPACE
+        - task_key: adhoc_cost_query
+          depends_on:
+            - task_key: reconcile_costs
+          notebook_task:
+            notebook_path: ../src/notebooks/05_adhoc_cost_query.ipynb
+            source: WORKSPACE
+            base_parameters:
+              start_date: ""
+              end_date: ""
+              workspace_id: "0"
+              team_tag: ""
+              owner_email: ""
+              cost_center_tag: ""
+              job_id_filter: ""
+              function_filter: "ALL"
+      tags:
+        team: ${var.team_tag}
+        Owner: ${var.owner_email}

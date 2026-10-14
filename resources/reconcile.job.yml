@@ -1,0 +1,45 @@
+# Optional hourly reconcile. Paused by default so deploy does not start a cron.
+# Unpause after the first demo run if you want actual dollars once billing lands.
+resources:
+  jobs:
+    ai_functions_cost_reconcile_hourly:
+      name: ai-functions-cost-reconcile-hourly
+      max_concurrent_runs: 1
+      schedule:
+        quartz_cron_expression: "0 0 * * * ?"
+        timezone_id: America/New_York
+        pause_status: PAUSED
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: schema
+          default: ${var.schema}
+        - name: sample_size
+          default: ${var.sample_size}
+        - name: team_tag
+          default: ${var.team_tag}
+        - name: owner_email
+          default: ${var.owner_email}
+        - name: model_name
+          default: ${var.model_name}
+      tasks:
+        - task_key: reconcile
+          notebook_task:
+            notebook_path: ../src/notebooks/04_reconcile_costs.ipynb
+            source: WORKSPACE
+        - task_key: adhoc_cost_query
+          notebook_task:
+            notebook_path: ../src/notebooks/05_adhoc_cost_query.ipynb
+            source: WORKSPACE
+            base_parameters:
+              start_date: ""
+              end_date: ""
+              workspace_id: "0"
+              team_tag: ""
+              owner_email: ""
+              cost_center_tag: ""
+              job_id_filter: ""
+              function_filter: "ALL"
+      tags:
+        team: ${var.team_tag}
+        Owner: ${var.owner_email}
