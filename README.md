@@ -4,6 +4,14 @@ Fork this repository, point it at your Databricks workspace, and run a predicted
 
 This README is the GitHub source of truth. `databricks bundle deploy` uploads the notebooks and jobs. It does **not** publish this README into the workspace. Read here first, then deploy.
 
+[Watch the Loom walkthrough](https://www.loom.com/share/51e70ed50c0a433d9581a44cbf85027c)
+
+## Architecture
+
+![The toolkit configures a synthetic workload, runs ai_extract and ai_query side by side, records predicted cost, and reconciles it with system billing tables after billing data lands. The output supports a measured per-row forecast and a cost-quality decision.](docs/diagrams/ai_functions_cost_toolkit.png)
+
+Editable source: [`docs/diagrams/ai_functions_cost_toolkit.svg`](docs/diagrams/ai_functions_cost_toolkit.svg).
+
 ## What this proves
 
 Two AI Functions paths price differently. This bundle runs both on the same rows, writes a predicted cost into `run_log`, then joins [`system.billing.usage`](https://docs.databricks.com/aws/en/admin/system-tables/billing) after the documented lag.
@@ -84,6 +92,7 @@ Scale with `--var sample_size=<n>` or job parameters. Multiply the measured per-
 | `src/notebooks/` | Setup, generate, extract, query, reconcile, ad-hoc cost |
 | `resources/demo.job.yml` | Full pipeline job |
 | `resources/reconcile.job.yml` | Optional paused hourly reconcile |
+| `docs/diagrams/` | Slide-ready architecture PNG and editable SVG |
 | `databricks.yml` | Bundle name, variables, targets |
 | `SETUP.md` | Prerequisites, customization, limitations, cleanup |
 
